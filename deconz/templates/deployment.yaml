@@ -25,13 +25,13 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: DECONZ_WEB_PORT
-              value:  {{ .Values.service.port }}
+              value: {{ .Values.service.port | quote }}
             - name: DECONZ_WS_PORT
-              value: {{ .Values.service.websocketPort }}
+              value: {{ .Values.service.websocketPort | quote }}
             - name: DECONZ_DEVICE
               value: {{ .Values.device }}
             - name: TZ
@@ -51,30 +51,30 @@ spec:
 {{- end }}
 {{- if .Values.debug.info }}
             - name: DEBUG_INFO
-              value: 1
+              value: "1"
 {{- end }}
 {{- if .Values.debug.aps }}
             - name: DEBUG_APS
-              value: 1
+              value: "1"
 {{- end }}
 {{- if .Values.debug.zcl }}
             - name: DEBUG_ZCL
-              value: 1
+              value: "1"
 {{- end }}
 {{- if .Values.debug.zdp }}
             - name: DEBUG_ZDP
-              value: 1
+              value: "1"
 {{- end }}
 {{- if .Values.debug.otau }}
             - name: DEBUG_OTAU
-              value: 1
+              value: "1"
 {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
             - name: https
-              containerPort: {{ .Values.service.httpsPort }}
+              containerPort: {{ .Values.service.websocketPort }}
               protocol: TCP
             - name: vnc
               containerPort: {{  .Values.vnc.port }}
@@ -102,8 +102,8 @@ spec:
 {{- if .Values.persistence.enabled }}
         - name: config
           persistentVolumeClaim:
-{{- if .Values.persistence.claimName }}
-            claimName: {{ .Values.persistence.claimName }}
+{{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
 {{- else }}
             claimName: {{ include "deconz.fullname" . }}-config
 {{- end }}

@@ -12,7 +12,7 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-    - port: {{ .Values.service.httpsPort }}
+    - port: {{ .Values.service.websocketPort }}
       targetPort: https
       protocol: TCP
       name: https
