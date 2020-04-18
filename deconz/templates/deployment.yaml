@@ -87,11 +87,27 @@ spec:
               path: /
               port: http
           volumeMounts:
+{{- if .Values.persistence.enabled }}
+            - name: config
+              mountPath: /root/.local/share/dresden-elektronik/deCONZ
+{{- if .Values.persistence.subPath }}
+              subPath: {{ .Values.persistence.subPath }}
+{{- end }}
+{{- end }}
             - name: device
               mountPath: {{ .Values.device }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
+{{- if .Values.persistence.enabled }}
+        - name: config
+          persistentVolumeClaim:
+{{- if .Values.persistence.claimName }}
+            claimName: {{ .Values.persistence.claimName }}
+{{- else }}
+            claimName: {{ include "deconz.fullname" . }}-config
+{{- end }}
+{{- end }}
         - name: device
           hostPath:
             path: /dev/ttyACM0 
