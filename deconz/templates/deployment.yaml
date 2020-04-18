@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "deconz.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "deconz.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "deconz.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "deconz.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DECONZ_WEB_PORT
+              value:  {{ .Values.service.port }}
+            - name: DECONZ_WS_PORT
+              value: {{ .Values.service.websocketPort }}
+            - name: DECONZ_DEVICE
+              value: {{ .Values.device }}
+            - name: TZ
+              value: {{ .Values.timezone }}
+            - name: DECONZ_UPNP
+              value: {{ if .Values.upnp }}"1"{{ else }}"0"{{ end }}
+{{- if .Values.vnc.enabled }}
+            - name: DECONZ_VNC_MODE
+              value: "1"
+            - name: DECONZ_VNC_PORT
+              value: {{ .Values.vnc.port }}
+            - name: DECONZ_VNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "deconz.fullname" . }}
+                  key: vnc_password
+{{- end }}
+{{- if .Values.debug.info }}
+            - name: DEBUG_INFO
+              value: 1
+{{- end }}
+{{- if .Values.debug.aps }}
+            - name: DEBUG_APS
+              value: 1
+{{- end }}
+{{- if .Values.debug.zcl }}
+            - name: DEBUG_ZCL
+              value: 1
+{{- end }}
+{{- if .Values.debug.zdp }}
+            - name: DEBUG_ZDP
+              value: 1
+{{- end }}
+{{- if .Values.debug.otau }}
+            - name: DEBUG_OTAU
+              value: 1
+{{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            - name: https
+              containerPort: {{ .Values.service.httpsPort }}
+              protocol: TCP
+            - name: vnc
+              containerPort: {{  .Values.vnc.port }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: device
+              mountPath: {{ .Values.device }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: device
+          hostPath:
+            path: /dev/ttyACM0 
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

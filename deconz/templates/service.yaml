@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "deconz.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "deconz.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: {{ .Values.service.httpsPort }}
+      targetPort: https
+      protocol: TCP
+      name: https
+{{- if .Values.vnc.enabled }}
+    - port: {{ .Values.vnc.port }}
+      targetPort: vnc
+      protocol: TCP
+      name: vnc
+{{- end }}
+  selector:
+    {{- include "deconz.selectorLabels" . | nindent 4 }}
