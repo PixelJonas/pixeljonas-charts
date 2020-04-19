@@ -42,7 +42,7 @@ spec:
             - name: DECONZ_VNC_MODE
               value: "1"
             - name: DECONZ_VNC_PORT
-              value: {{ .Values.vnc.port }}
+              value: {{ .Values.vnc.port | quote }}
             - name: DECONZ_VNC_PASSWORD
               valueFrom:
                 secretKeyRef:
