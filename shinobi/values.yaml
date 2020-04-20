@@ -106,6 +106,16 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+probes:
+  liveness:
+    initialDelaySeconds: 15
+    failureThreshold: 5
+    timeoutSeconds: 2
+  readiness:
+    initialDelaySeconds: 15
+    failureThreshold: 5
+    timeoutSeconds: 2
+
 podSecurityContext:
   {}
   # fsGroup: 2000
