@@ -7,7 +7,10 @@ replicaCount: 1
 image:
   repository: marthoc/deconz
   tag: amd64-2.05.75
-  pullPolicy: IfNotPresent
+  pullPolicy: INotPresent
+
+deploymentStrategy:
+  type: Recreate
 
 debug:
   info: true
@@ -48,7 +51,8 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
 securityContext:

@@ -9,6 +9,9 @@ image:
   tag: 1.0.38-microservice-debian
   pullPolicy: IfNotPresent
 
+deploymentStrategy:
+  type: Recreate
+
 admin:
   name: shinobi
   # password: specify a password for the administrator
