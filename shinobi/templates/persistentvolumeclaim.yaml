@@ -1,4 +1,4 @@
-{{- if not .Values.persistence.config.existingClaim }}
+{{- if and .Values.persistence.config.enabled (not .Values.persistence.config.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -18,7 +18,7 @@ spec:
 {{- end }}
 {{- end }}
 ---
-{{- if not .Values.persistence.videos.existingClaim }}
+{{- if and .Values.persistence.videos.enabled (not .Values.persistence.videos.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -38,7 +38,7 @@ spec:
 {{- end }}
 {{- end }}
 ---
-{{- if not .Values.persistence.database.existingClaim }}
+{{- if and .Values.persistence.database.enabled (not .Values.persistence.database.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
