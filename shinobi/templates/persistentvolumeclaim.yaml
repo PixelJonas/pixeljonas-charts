@@ -37,3 +37,23 @@ spec:
   storageClassName: {{ .Values.persistence.videos.storageClass | quote }}
 {{- end }}
 {{- end }}
+---
+{{- if not .Values.persistence.database.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "shinobi.fullname" . }}-database
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "shinobi.labels" . | nindent 4 }}
+    component: database
+spec:
+  accessModes:
+  - {{ .Values.persistence.database.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.database.size | quote }}
+{{- if .Values.persistence.database.storageClass }}
+  storageClassName: {{ .Values.persistence.database.storageClass | quote }}
+{{- end }}
+{{- end }}

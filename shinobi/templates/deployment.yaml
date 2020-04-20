@@ -93,6 +93,13 @@ spec:
               subPath: {{ .Values.persistence.videos.subPath }}
 {{- end }}
 {{- end }}
+{{- if .Values.persistence.database.enabled }}
+            - name: database
+              mountPath: /var/lib/mysql
+{{- if .Values.persistence.database.subPath }}
+              subPath: {{ .Values.persistence.database.subPath }}
+{{- end }}
+{{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -112,6 +119,15 @@ spec:
             claimName: {{ .Values.persistence.videos.existingClaim }}
 {{- else }}
             claimName: {{ include "shinobi.fullname" . }}-videos
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.database.enabled }}
+        - name: database
+          persistentVolumeClaim:
+{{- if .Values.persistence.database.existingClaim }}
+            claimName: {{ .Values.persistence.database.existingClaim }}
+{{- else }}
+            claimName: {{ include "shinobi.fullname" . }}-database
 {{- end }}
 {{- end }}
       {{- with .Values.nodeSelector }}

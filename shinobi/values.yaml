@@ -1,4 +1,4 @@
-# Default values for deconz.
+# Default values for shinobi.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -33,7 +33,7 @@ persistence:
     # Optionally specify existingClaim to manually override the PVC to be used for
     # the config directory. If existingClaim is specified, storageClass and size
     # are ignored.
-    ## existingClaim: "deconz-config-pvc"
+    ## existingClaim: "shinobi-config-pvc"
 
     # Optionally specify a storage class to be used for the config directory.
     # If not specified and claimName is not specified, the default storage
@@ -50,11 +50,11 @@ persistence:
   videos:
     enabled: true
     # Optionally specify existingClaim to manually override the PVC to be used for
-    # the config directory. If existingClaim is specified, storageClass and size
+    # the video directory. If existingClaim is specified, storageClass and size
     # are ignored.
-    ## existingClaim: "deconz-config-pvc"
+    ## existingClaim: "shinobi-video-pvc"
 
-    # Optionally specify a storage class to be used for the config directory.
+    # Optionally specify a storage class to be used for the video directory.
     # If not specified and claimName is not specified, the default storage
     # class will be used.
     storageClass: ""
@@ -66,6 +66,26 @@ persistence:
     size: 50Gi
     # Access mode for this volume
     accessMode: ReadWriteOnce
+    # activate this if you are *not* using the microservice tag
+    database:
+      enabled: false
+      # Optionally specify existingClaim to manually override the PVC to be used for
+      # the database directory. If existingClaim is specified, storageClass and size
+      # are ignored.
+      ## existingClaim: "shinobi-database-pvc"
+
+      # Optionally specify a storage class to be used for the database directory.
+      # If not specified and claimName is not specified, the default storage
+      # class will be used.
+      storageClass: ""
+
+      # subPath: some-subpath
+
+      # The requested size of the volume to be used when creating a
+      # PersistentVolumeClaim.
+      size: 50Gi
+      # Access mode for this volume
+      accessMode: ReadWriteOnce
 mariadb:
   enabled: true
   rbac:
