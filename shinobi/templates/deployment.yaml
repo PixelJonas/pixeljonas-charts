@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shinobi.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "shinobi.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "shinobi.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "shinobi.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+{{- if .Values.mariadb.enabled }}
+            - name: MYSQL_USER
+              value: {{ .Values.mariadb.db.user | quote }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.mariadb.db.password | quote }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mariadb.db.name | quote }}
+            - name: MYSQL_HOST
+              value: {{ include "mariadb.fullname" . }}
+            - name: MYSQL_ROOT_USER
+              value: root
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.mariadb.rootUser.password | quote }}
+{{- end }}
+            - name: ADMIN_USER
+              value: {{ .Values.admin.name | quote }}
+            - name: ADMIN_PASSWORD
+              value: {{ .Values.admin.password | quote }}
+{{- if and .Values.plugins.motion.enabled .Values.plugins.motion.key }}
+            - name: PLUGINKEY_MOTION
+              value: {{ .Values.plugins.motion.key | quote }}
+{{- if .Values.plugins.motion.host }}
+            - name: MOTION_HOST
+              value: {{ .Values.plugins.motion.host | quote }}
+{{- end }}
+{{- if .Values.plugins.motion.host }}
+            - name: MOTION_PORT
+              value: {{ .Values.plugins.motion.port | quote }}
+{{- end }}
+{{- end }}
+{{- if and .Values.plugins.opencv.enabled .Values.plugins.opencv.key }}
+            - name: PLUGINKEY_OPENCV
+              value: {{ .Values.plugins.opencv.key | quote }}
+{{- end }}
+{{- if and .Values.plugins.openalpr.enabled .Values.plugins.openalpr.key }}
+            - name: PLUGINKEY_OPENALPR
+              value: {{ .Values.plugins.openalpr.key | quote }}
+{{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+{{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+{{- if .Values.persistence.config.subPath }}
+              subPath: {{ .Values.persistence.config.subPath }}
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.videos.enabled }}
+            - name: videos
+              mountPath: /opt/shinobi/videos
+{{- if .Values.persistence.videos.subPath }}
+              subPath: {{ .Values.persistence.videos.subPath }}
+{{- end }}
+{{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+{{- if .Values.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+{{- if .Values.persistence.config.existingClaim }}
+            claimName: {{ .Values.persistence.config.existingClaim }}
+{{- else }}
+            claimName: {{ include "shinobi.fullname" . }}-config
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.videos.enabled }}
+        - name: videos
+          persistentVolumeClaim:
+{{- if .Values.persistence.videos.existingClaim }}
+            claimName: {{ .Values.persistence.videos.existingClaim }}
+{{- else }}
+            claimName: {{ include "shinobi.fullname" . }}-videos
+{{- end }}
+{{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

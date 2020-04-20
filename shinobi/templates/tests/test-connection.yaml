@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "shinobi.fullname" . }}-test-connection"
+  labels:
+    {{- include "shinobi.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "shinobi.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

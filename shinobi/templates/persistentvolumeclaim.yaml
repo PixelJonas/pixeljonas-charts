@@ -1,0 +1,39 @@
+{{- if not .Values.persistence.config.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "shinobi.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "shinobi.labels" . | nindent 4 }}
+    component: config
+spec:
+  accessModes:
+  - {{ .Values.persistence.config.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.config.size | quote }}
+{{- if .Values.persistence.config.storageClass }}
+  storageClassName: {{ .Values.persistence.config.storageClass | quote }}
+{{- end }}
+{{- end }}
+---
+{{- if not .Values.persistence.videos.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "shinobi.fullname" . }}-videos
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "shinobi.labels" . | nindent 4 }}
+    component: videos
+spec:
+  accessModes:
+  - {{ .Values.persistence.videos.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.videos.size | quote }}
+{{- if .Values.persistence.videos.storageClass }}
+  storageClassName: {{ .Values.persistence.videos.storageClass | quote }}
+{{- end }}
+{{- end }}

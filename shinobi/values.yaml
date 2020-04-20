@@ -1,0 +1,126 @@
+# Default values for deconz.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: migoller/shinobidocker
+  tag: 1.0.38-microservice-debian
+  pullPolicy: IfNotPresent
+
+admin:
+  name: shinobi
+  # password: specify a password for the administrator
+
+cron_key: change_this_to_something_very_random__just_anything_other_than_this
+plugins:
+  motion:
+    enabled: false
+    key: null
+    host: motion.cluster.local
+    port: 8080
+  opencv:
+    enabled: true
+    key: null
+  openalpr:
+    enabled: true
+    key: null
+
+persistence:
+  config:
+    enabled: true
+    # Optionally specify existingClaim to manually override the PVC to be used for
+    # the config directory. If existingClaim is specified, storageClass and size
+    # are ignored.
+    ## existingClaim: "deconz-config-pvc"
+
+    # Optionally specify a storage class to be used for the config directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+
+    # subPath: some-subpath
+
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 5Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+  videos:
+    enabled: true
+    # Optionally specify existingClaim to manually override the PVC to be used for
+    # the config directory. If existingClaim is specified, storageClass and size
+    # are ignored.
+    ## existingClaim: "deconz-config-pvc"
+
+    # Optionally specify a storage class to be used for the config directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+
+    # subPath: some-subpath
+
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 50Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+mariadb:
+  enabled: true
+  rbac:
+    create: true
+  rootUser:
+    # password: specify a password for the root user
+    forcePassword: true
+  db:
+    name: shinobi
+    user: shinobi
+    # password: specify a password for the shinobi user
+    forcePassword: true
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext: {}
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
