@@ -20,10 +20,10 @@ securityContext:
   capabilities:
     add: ["SYS_ADMIN", "DAC_READ_SEARCH"]
 
-podSecurityContext:
-  runAsUser: 1001
-  runAsGroup: 10000
-  fsGroup: 10000
+puid: 1001
+pgid: 10000
+
+podSecurityContext: {}
 
 debug: 0
 

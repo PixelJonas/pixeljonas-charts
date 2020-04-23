@@ -23,6 +23,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+      hostNetwork: {{ .Values.hostNetwork }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -33,9 +34,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: PUID
-              value: {{ .Values.podSecurityContext.runAsUser | quote }}
+              value: {{ .Values.puid | quote }}
             - name: PGID
-              value: {{ .Values.podSecurityContext.runAsGroup | quote }}
+              value: {{ .Values.pgid | quote }}
             - name: CREATE_TMPFS
               value: {{ .Values.persistence.createTmpfFS | quote }}
             - name: DEBUG
