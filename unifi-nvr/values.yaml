@@ -50,46 +50,6 @@ persistence:
     size: 5Gi
     # Access mode for this volume
     accessMode: ReadWriteOnce
-  videos:
-    enabled: true
-    # Optionally specify existingClaim to manually override the PVC to be used for
-    # the video directory. If existingClaim is specified, storageClass and size
-    # are ignored.
-    ## existingClaim: "unifi-nvr-video-pvc"
-
-    # Optionally specify a storage class to be used for the video directory.
-    # If not specified and claimName is not specified, the default storage
-    # class will be used.
-    storageClass: ""
-
-    # subPath: some-subpath
-
-    # The requested size of the volume to be used when creating a
-    # PersistentVolumeClaim.
-    size: 50Gi
-    # Access mode for this volume
-    accessMode: ReadWriteOnce
-    # activate this if you are *not* using the microservice tag
-    database:
-      enabled: false
-      # Optionally specify existingClaim to manually override the PVC to be used for
-      # the database directory. If existingClaim is specified, storageClass and size
-      # are ignored.
-      ## existingClaim: "unifi-nvr-database-pvc"
-
-      # Optionally specify a storage class to be used for the database directory.
-      # If not specified and claimName is not specified, the default storage
-      # class will be used.
-      storageClass: ""
-
-      # subPath: some-subpath
-
-      # The requested size of the volume to be used when creating a
-      # PersistentVolumeClaim.
-      size: 50Gi
-      # Access mode for this volume
-      accessMode: ReadWriteOnce
-
 
 imagePullSecrets: []
 nameOverride: ""

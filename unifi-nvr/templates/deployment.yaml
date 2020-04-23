@@ -87,13 +87,6 @@ spec:
               subPath: {{ .Values.persistence.config.subPath }}
 {{- end }}
 {{- end }}
-{{- if .Values.persistence.videos.enabled }}
-            - name: videos
-              mountPath: /var/lib/unifi-video/videos 
-{{- if .Values.persistence.videos.subPath }}
-              subPath: {{ .Values.persistence.videos.subPath }}
-{{- end }}
-{{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -104,15 +97,6 @@ spec:
             claimName: {{ .Values.persistence.config.existingClaim }}
 {{- else }}
             claimName: {{ include "unifi-nvr.fullname" . }}-config
-{{- end }}
-{{- end }}
-{{- if .Values.persistence.videos.enabled }}
-        - name: videos
-          persistentVolumeClaim:
-{{- if .Values.persistence.videos.existingClaim }}
-            claimName: {{ .Values.persistence.videos.existingClaim }}
-{{- else }}
-            claimName: {{ include "unifi-nvr.fullname" . }}-videos
 {{- end }}
 {{- end }}
       {{- with .Values.nodeSelector }}
