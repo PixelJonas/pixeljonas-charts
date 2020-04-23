@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "unifi-nvr.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifi-nvr.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+{{- with .Values.deploymentStrategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "unifi-nvr.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "unifi-nvr.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PUID
+              value: {{ .Values.podSecurityContext.runAsUser | quote }}
+            - name: PGID
+              value: {{ .Values.podSecurityContext.runAsGroup | quote }}
+            - name: CREATE_TMPFS
+              value: {{ .Values.persistence.createTmpfFS | quote }}
+            - name: DEBUG
+              value: {{ .Values.debug | quote }}
+          ports:
+            - name: rtmp
+              containerPort: 1935
+              protocol: TCP
+            - name: rtmps
+              containerPort: 7444
+              protocol: TCP
+            - name: rtsp
+              containerPort: 7447
+              protocol: TCP
+            - name: inbound
+              containerPort: 6666
+              protocol: TCP
+            - name: management
+              containerPort: 7442
+              protocol: TCP
+            - name: talkback
+              containerPort: 7004
+              protocol: UDP
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            - name: httpvideo
+              containerPort: 7445
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+          volumeMounts:
+{{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: /var/lib/unifi-video
+{{- if .Values.persistence.config.subPath }}
+              subPath: {{ .Values.persistence.config.subPath }}
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.videos.enabled }}
+            - name: videos
+              mountPath: /var/lib/unifi-video/videos 
+{{- if .Values.persistence.videos.subPath }}
+              subPath: {{ .Values.persistence.videos.subPath }}
+{{- end }}
+{{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+{{- if .Values.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+{{- if .Values.persistence.config.existingClaim }}
+            claimName: {{ .Values.persistence.config.existingClaim }}
+{{- else }}
+            claimName: {{ include "unifi-nvr.fullname" . }}-config
+{{- end }}
+{{- end }}
+{{- if .Values.persistence.videos.enabled }}
+        - name: videos
+          persistentVolumeClaim:
+{{- if .Values.persistence.videos.existingClaim }}
+            claimName: {{ .Values.persistence.videos.existingClaim }}
+{{- else }}
+            claimName: {{ include "unifi-nvr.fullname" . }}-videos
+{{- end }}
+{{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
