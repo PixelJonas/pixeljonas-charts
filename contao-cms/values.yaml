@@ -1,0 +1,146 @@
+# Default values for contao-cms.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: quay.io/pixeljonas/contao-cms
+  tag: 4.9.3
+  pullPolicy: IfNotPresent
+
+deploymentStrategy:
+  type: Recreate
+
+timezone: "UTC"
+
+puid: 1001
+pgid: 10000
+
+documentroot: /web
+appenv: dev
+
+podSecurityContext: {}
+
+database:
+  image:
+    repository: mariadb
+    tag: 10.5
+    pullPolicy: IfNotPresent
+  user: contao
+  name: contao
+  # You should set your own password. Otherwise a new password will be generated. It may get overwritten when doing upgrades.
+  # password: "fooo"
+  # rootpassword: "fooo"
+
+persistence:
+  data:
+    enabled: true
+    # Optionally specify existingClaim to manually override the PVC to be used for
+    # the config directory. If existingClaim is specified, storageClass and size
+    # are ignored.
+    ## existingClaim: "contao-cms-data-pvc"
+
+    # Optionally specify a storage class to be used for the config directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+
+    # subPath: some-subpath
+
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 5Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+  config:
+    enabled: true
+    # Optionally specify existingClaim to manually override the PVC to be used for
+    # the config directory. If existingClaim is specified, storageClass and size
+    # are ignored.
+    ## existingClaim: "contao-cms-config-pvc"
+
+    # Optionally specify a storage class to be used for the config directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+
+    # subPath: some-subpath
+
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 5Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+  database:
+    enabled: true
+    # Optionally specify existingClaim to manually override the PVC to be used for
+    # the config directory. If existingClaim is specified, storageClass and size
+    # are ignored.
+    ## existingClaim: "contao-cms-database-pvc"
+
+    # Optionally specify a storage class to be used for the config directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+
+    # subPath: some-subpath
+
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 5Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+probes:
+  liveness:
+    initialDelaySeconds: 15
+    failureThreshold: 5
+    timeoutSeconds: 2
+  readiness:
+    initialDelaySeconds: 15
+    failureThreshold: 5
+    timeoutSeconds: 2
+
+
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: contao-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
