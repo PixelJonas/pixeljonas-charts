@@ -75,11 +75,6 @@ spec:
               value: {{ .Values.documentroot | quote }}
             - name: APP_ENV
               value: {{ .Values.appenv | quote }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "database.secretName" . }}
-                  key: DATABASE_URL
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
