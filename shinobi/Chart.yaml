@@ -23,6 +23,6 @@ appVersion: 1.16.0
 dependencies:
   - name: mariadb
     version: 7.3.19
-    repository: https://charts.bitnami.com/bitnami
+    repository: registry-1.docker.io/bitnamicharts
     condition: mariadb.enabled
     alias: mariadb
